@@ -28,4 +28,38 @@ class DatabaseConfigTest {
             "jdbc:mysql://mysql.example.com:15425/crud_usuarios"
                 + "?sslMode=REQUIRED&serverTimezone=UTC&allowPublicKeyRetrieval=true");
   }
+
+  @Test
+  void shouldBuildPostgresJdbcUrlTranslatingMysqlSslModeNames() {
+    // Arrange
+    final DatabaseConfig config =
+        new DatabaseConfig("db.example.com", 5432, "postgres", USERNAME, PASSWORD, "REQUIRED");
+
+    // Act
+    final String jdbcUrl = config.buildPostgresJdbcUrl();
+
+    // Assert
+    assertThat(jdbcUrl).isEqualTo("jdbc:postgresql://db.example.com:5432/postgres?sslmode=require");
+  }
+
+  @Test
+  void shouldKeepNativePostgresSslModeNames() {
+    // Arrange
+    final DatabaseConfig config =
+        new DatabaseConfig("db.example.com", 5432, "postgres", USERNAME, PASSWORD, "verify-full");
+
+    // Act + Assert
+    assertThat(config.buildPostgresJdbcUrl()).endsWith("?sslmode=verify-full");
+  }
+
+  @Test
+  void shouldMapEachMysqlSslModeToItsPostgresEquivalent() {
+    // Act + Assert
+    assertThat(DatabaseConfig.toPostgresSslMode("DISABLED")).isEqualTo("disable");
+    assertThat(DatabaseConfig.toPostgresSslMode("PREFERRED")).isEqualTo("prefer");
+    assertThat(DatabaseConfig.toPostgresSslMode("REQUIRED")).isEqualTo("require");
+    assertThat(DatabaseConfig.toPostgresSslMode("VERIFY_CA")).isEqualTo("verify-ca");
+    assertThat(DatabaseConfig.toPostgresSslMode("VERIFY_IDENTITY")).isEqualTo("verify-full");
+    assertThat(DatabaseConfig.toPostgresSslMode(null)).isEqualTo("disable");
+  }
 }

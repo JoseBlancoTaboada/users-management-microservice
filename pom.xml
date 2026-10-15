@@ -78,6 +78,13 @@
       <version>${mysql.connector.version}</version>
     </dependency>
 
+    <!-- PostgreSQL JDBC Driver (version gestionada por el BOM de Spring Boot) -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
     <!-- Resiliencia para el cliente HTTP de Brevo -->
     <dependency>
       <groupId>io.github.resilience4j</groupId>
