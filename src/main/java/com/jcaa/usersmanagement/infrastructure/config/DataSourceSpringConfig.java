@@ -22,6 +22,9 @@ public class DataSourceSpringConfig {
 
   private static final String LOG_DATASOURCE_INIT = "[DataSourceSpringConfig] DataSource inicializado. host={} port={}";
 
+  @Value("${db.engine:mysql}")
+  private String dbEngine;
+
   @Value(PROP_DB_HOST)
   private String dbHost;
 
@@ -46,7 +49,8 @@ public class DataSourceSpringConfig {
         new DatabaseConfig(dbHost, dbPort, dbName, dbUsername, dbPassword, dbSslMode);
 
     final HikariConfig hikariConfig = new HikariConfig();
-    hikariConfig.setJdbcUrl(config.buildJdbcUrl());
+    final boolean postgres = "postgres".equalsIgnoreCase(dbEngine);
+    hikariConfig.setJdbcUrl(postgres ? config.buildPostgresJdbcUrl() : config.buildJdbcUrl());
     hikariConfig.setUsername(config.username());
     hikariConfig.setPassword(config.password());
     hikariConfig.setMaximumPoolSize(10);
@@ -54,6 +58,7 @@ public class DataSourceSpringConfig {
     hikariConfig.setConnectionTimeout(30_000);
 
     log.info(LOG_DATASOURCE_INIT, dbHost, dbPort);
+    log.info("[DataSourceSpringConfig] motor de base de datos={}", postgres ? "postgres" : "mysql");
     return new HikariDataSource(hikariConfig);
   }
 }
